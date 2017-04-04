@@ -1,0 +1,12 @@
+data = LOAD 'TrainingRatings.txt' USING PigStorage(',') AS (movieid:int, userid:int, rating:double);
+
+newData = FOREACH data GENERATE userid, rating;
+groupData = GROUP newData BY userid;
+
+--DESCRIBE groupData;
+
+next = FOREACH groupData GENERATE group, SUM(newData.rating) AS sum, (double)COUNT(newData.rating) AS count;
+--DESCRIBE next;
+
+record = FOREACH next GENERATE group, sum/count;
+STORE record INTO 'record';
